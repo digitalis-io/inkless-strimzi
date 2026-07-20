@@ -4,7 +4,7 @@ This repository provides quick-and-dirty instructions for running Inkless on Kub
 
 **⚠️ Important:** The code in this repository is far from enabling production-ready deployments and is intended for testing and experimentation only.
 
-Version numbers are for now hardcoded to Strimzi 0.46.0 (Kafka 4.0.0) and Inkless 4.1.0-inkless-SNAPSHOT.
+Version numbers are for now hardcoded to Strimzi 1.1.0 (Kafka 4.2.1) and Inkless 0.44 (4.2.1-inkless).
 
 
 ## 🔧 Building Inkless
@@ -20,20 +20,20 @@ cd inkless
 
 ## 🧩 Patching the Strimzi Image
 
-Kafka's official Docker image and, hence, also the Inkless image are not directly compatible with Strimzi. We patch the Strimzi image by replacing all Kafka binaries and dependencies with those from Inkless. This is done by first removing all files in the image that come with the Kafka 4.0 distribution and then adding files from the Inkless distribution.
+Kafka's official Docker image and, hence, also the Inkless image are not directly compatible with Strimzi. We patch the Strimzi image by replacing all Kafka binaries and dependencies with those from Inkless. This is done by first removing all files in the image that come with the Kafka 4.2 distribution and then adding files from the Inkless distribution.
 
 *Note, this seems to work for now, but it may not remain compatible with future versions.*
 
 Build the patched Strimzi image by running:
 
 ```sh
-docker build -t strimzi/kafka:0.46.0-kafka-4.1.0-inkless-SNAPSHOT .
+docker build -t strimzi/kafka:1.1.0-kafka-4.2.1-inkless .
 ```
 
-This will create a new image with the name `strimzi/kafka:0.46.0-kafka-4.1.0-inkless-SNAPSHOT`, which you can push to your own registry:
+This will create a new image with the name `strimzi/kafka:1.1.0-kafka-4.2.1-inkless`, which you can push to your own registry:
 
 ```sh
-docker tag strimzi/kafka:0.46.0-kafka-4.1.0-inkless-SNAPSHOT $YOUR_REGISTRY/$YOUR_IMAGE_NAME
+docker tag strimzi/kafka:1.1.0-kafka-4.2.1-inkless $YOUR_REGISTRY/$YOUR_IMAGE_NAME
 docker push $YOUR_REGISTRY/$YOUR_IMAGE_NAME
 ```
 
