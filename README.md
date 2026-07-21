@@ -1,6 +1,18 @@
+<p align="center">
+  <a href="https://digitalis.io">
+    <img src="https://digitalis-marketplace-assets.s3.us-east-1.amazonaws.com/DigitalisDigital_DigitalisFullLogoGradient+-+medium.png" alt="Digitalis.IO" width="300">
+  </a>
+</p>
+
+<p align="center">
+  <em>Maintained by <a href="https://digitalis.io">Digitalis.IO</a></em>
+</p>
+
 # [Inkless](https://github.com/aiven/inkless) on [Strimzi](https://strimzi.io/)
 
 This repository provides quick-and-dirty instructions for running Inkless on Kubernetes with Strimzi. It allows you to experiment with the initial draft of [KIP-1150: Diskless Topics](https://cwiki.apache.org/confluence/display/KAFKA/KIP-1150%3A+Diskless+Topics) in Amazon EKS with S3 as backing object storage.
+
+> This is a Digitalis.io fork of [SoerenHenning/inkless-strimzi](https://github.com/SoerenHenning/inkless-strimzi), originally created by [Sören Henning](https://github.com/SoerenHenning). All credit for the original work goes to the upstream author; this fork adds version updates and CI to publish images to GHCR.
 
 **⚠️ Important:** The code in this repository is far from enabling production-ready deployments and is intended for testing and experimentation only.
 
@@ -144,3 +156,13 @@ To remove all created objects in the S3 bucket:
 ```sh
 aws s3 rm s3://$S3_BUCKET_NAME/inkless --recursive
 ```
+
+
+## 🙏 Attribution
+
+This project is a fork of [SoerenHenning/inkless-strimzi](https://github.com/SoerenHenning/inkless-strimzi) by [Sören Henning](https://github.com/SoerenHenning). The original approach, Dockerfile, patch script, and Strimzi manifests are his work. This Digitalis.io fork tracks newer Inkless/Kafka/Strimzi releases and adds a CI pipeline that publishes patched images to GHCR.
+
+
+## 📬 Contact
+
+This project is maintained by [Digitalis.io](https://digitalis.io). For support, visit [digitalis.io/contact](https://digitalis.io/contact).
