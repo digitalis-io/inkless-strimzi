@@ -1,0 +1,98 @@
+name: Build and push Inkless images
+
+# Builds the Inkless distribution for each supported Strimzi/Kafka combination
+# and publishes the patched Strimzi Kafka image to GitHub Container Registry.
+#
+# Add a new Strimzi release by appending an entry to the build matrix below.
+# See https://strimzi.io/downloads/ for the Strimzi -> Kafka version mapping
+# and https://github.com/aiven/inkless/tags for the matching Inkless release
+# tag (inkless-<kafka>-<inkless>).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - patch_kafka.sh
+      - .github/workflows/build-push.yml
+  pull_request:
+    paths:
+      - Dockerfile
+      - patch_kafka.sh
+      - .github/workflows/build-push.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Strimzi 1.1.0 ships Kafka 4.2.1; matched with Inkless 0.44.
+          - strimzi: "1.1.0"
+            kafka: "4.2.1"
+            inkless: "0.44"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Derive versions
+        id: vars
+        run: |
+          echo "inkless_tag=inkless-${{ matrix.kafka }}-${{ matrix.inkless }}" >> "$GITHUB_OUTPUT"
+          echo "dist_version=${{ matrix.kafka }}-inkless" >> "$GITHUB_OUTPUT"
+          echo "image_tag=${{ matrix.strimzi }}-kafka-${{ matrix.kafka }}-inkless-${{ matrix.inkless }}" >> "$GITHUB_OUTPUT"
+
+      - name: Check out Inkless submodule at release tag
+        working-directory: inkless
+        run: |
+          git fetch --tags --force origin
+          git checkout "${{ steps.vars.outputs.inkless_tag }}"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Inkless distribution
+        working-directory: inkless
+        run: ./gradlew clean releaseTarGz
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.image_tag }}
+          build-args: |
+            STRIMZI_VERSION=${{ matrix.strimzi }}
+            KAFKA_VERSION=${{ matrix.kafka }}
+            INKLESS_DIST_VERSION=${{ steps.vars.outputs.dist_version }}

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 strimzi="../../kafka"
-kafka="./kafka_2.13-4.2.1"
-inkless="./kafka_2.13-4.2.1-inkless"
+kafka="./kafka_2.13-${KAFKA_VERSION:-4.2.1}"
+inkless="./kafka_2.13-${INKLESS_DIST_VERSION:-4.2.1-inkless}"
 
 cd "$kafka" || exit 1
 
