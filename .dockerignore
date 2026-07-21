@@ -1,0 +1,10 @@
+# The Dockerfile needs only the Inkless distribution tarball and patch_kafka.sh
+# from the build context. Exclude the rest of the multi-GB Inkless submodule
+# (full Kafka source + every module's build/ output) so it isn't uploaded to
+# buildx on every CI build. Docker cannot re-include a file whose parent dir is
+# excluded, so whitelist the whole parent chain down to distributions.
+inkless/**
+!inkless/core
+!inkless/core/build
+!inkless/core/build/distributions
+!inkless/core/build/distributions/**
