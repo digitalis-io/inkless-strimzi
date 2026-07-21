@@ -11,17 +11,15 @@ USER root
 
 RUN mkdir ../tmp && \
     cd ../tmp && \
-    curl -LO https://archive.apache.org/dist/kafka/${KAFKA_VERSION}/kafka_2.13-${KAFKA_VERSION}.tgz && \
+    curl -fLO https://archive.apache.org/dist/kafka/${KAFKA_VERSION}/kafka_2.13-${KAFKA_VERSION}.tgz && \
     tar -xvzf kafka_2.13-${KAFKA_VERSION}.tgz
 
 ADD inkless/core/build/distributions/kafka_2.13-${INKLESS_DIST_VERSION}.tgz /opt/tmp
 ADD patch_kafka.sh /opt/tmp
 
-# patch_kafka.sh reads these to locate the extracted distributions
-ENV KAFKA_VERSION=${KAFKA_VERSION}
-ENV INKLESS_DIST_VERSION=${INKLESS_DIST_VERSION}
-
+# Pass the versions to patch_kafka.sh for this command only; don't persist them
+# as ENV into the final runtime image.
 RUN cd ../tmp && \
-    ./patch_kafka.sh && \
+    KAFKA_VERSION="$KAFKA_VERSION" INKLESS_DIST_VERSION="$INKLESS_DIST_VERSION" ./patch_kafka.sh && \
     cd ../kafka && \
     rm -r ../tmp
